@@ -47,7 +47,12 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <input onChange={e => this.setState({ todo: e.target.value })}></input>
+        <input
+          onChange={e => this.setState({ todo: e.target.value })}
+          value={this.state.todos}
+          placeholder="Todo name"
+        ></input>
+        <button onClick={this.addTodo}>Add Todo</button>
         {this.props.todos.map((item, i) => (
           <p key={i}>{item.title}</p>
         ))}
@@ -57,6 +62,7 @@ class App extends React.Component {
 }
 
 export default compose(
+  graphqlMutation(CreateTodo, ListTodos, "Todo"),
   graphql(ListTodos, {
     options: {
       fetchPolicy: "cache-and-network"
