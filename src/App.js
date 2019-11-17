@@ -3,6 +3,17 @@ import React from "react";
 import gql from "graphql-tag";
 import { graphql, compose } from "react-apollo";
 import { graphqlMutation } from "aws-appsync-react";
+import { buildSubscription } from "aws-appsync";
+
+const SubscribeToTodos = gql`
+  subscription {
+    onCreateTodo {
+      id
+      title
+      completed
+    }
+  }
+`;
 
 const CreateTodo = gql`
   mutation($title: String!, $completed: Boolean) {
@@ -31,6 +42,10 @@ class App extends React.Component {
     super(props);
     this.state = { todo: "" };
     this.addTodo = this.addTodo.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.subscribeToMore(buildSubscription(SubscribeToTodos, ListTodos));
   }
 
   addTodo() {
@@ -69,6 +84,7 @@ export default compose(
     },
     props: props => {
       return {
+        subscribeToMore: props.data.subscribeToMore,
         todos: props.data.listTodos ? props.data.listTodos.items : []
       };
     }
