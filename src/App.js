@@ -1,8 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
-function App() {
+import gql from "graphql-tag";
+import { graphql, compose } from "react-apollo";
+
+const ListTodos = gql`
+  query {
+    listTodos {
+      items {
+        id
+        title
+        completed
+      }
+    }
+  }
+`;
+
+function App(props) {
   return (
     <div className="App">
       <header className="App-header">
@@ -19,8 +34,22 @@ function App() {
           Learn React
         </a>
       </header>
+      {props.todos.map((item, i) => (
+        <p key={i}>{item.title}</p>
+      ))}
     </div>
   );
 }
 
-export default App;
+export default compose(
+  graphql(ListTodos, {
+    options: {
+      fetchPolicy: "cache-and-network"
+    },
+    props: props => {
+      return {
+        todos: props.data.listTodos ? props.data.listTodos.items : []
+      };
+    }
+  })
+)(App);
